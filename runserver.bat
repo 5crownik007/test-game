@@ -1,0 +1,1 @@
+docker run -it --rm -p 4000:4000 -p 4001:4001 -p 4002:4002 --rm -v %cd%:/usr/src/game evennia/evennia

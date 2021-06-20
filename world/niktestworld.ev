@@ -1,0 +1,578 @@
+#
+#Nikola's Test World 1
+#
+#Notes:
+# To load this file, try putting it in your world folder along with the .py then typing(from limbo!):
+#   @batchcommand world.niktestworld
+#
+#2021-06-09
+#Yesterday I drew up a little map in photoshop(evenniatest1.png) not unlike the map that can be found in
+# the tutorial_world. Today I'm gonna see if I can make this thing exist using the tutorial_world's
+# build.ev as a guide. Let's see how it goes! :)
+#
+#2021-06-16
+#As I'm going through building this world, I'm leaving little #####PLACEHOLDER##### marks so I can
+# keep track of what I need to come back to. But I haven't really thought about how that's going to work
+# and what are the criteria for a placeholder item. So I'm deciding now to make it clear to myself,
+# placeholders are to be used when I don't know how to do something. I want to go through making all of
+# the rooms first, and then come back to the placeholders. Placeholders shouldn't be used for things
+# that I "can't be bothered" to do right now.
+#
+#I'm also definitely going to need to read through the tutorial world's .py file with much greater
+# scrutiny. I think the main reason that external .py files are necessary for this is in order to define
+# custom commands. If custom commands weren't necessary, I could just make this entire game using the
+# default build commands, like dig, tele, desc, etc... I wonder if it's possible to check if someone is
+# carrying an item with just build commands...
+#
+#I've set up a mini-test world so I can test things before I put them into this test world. Testception.
+# Really, the point of the "mini-test" world is so that I can see how these batchcommands turn out
+# without having to actually run this entire file every time. Although, as of writing this, I haven't
+# even run this file once.
+#
+#2021-06-17
+#Going to do more experimenting today. Yesterday I did a lot of experimenting with spawners and
+# prototypes, which will be relevant to spawning items in this game like the wrench, keycards, weapons,
+# etc... I want to make rooms as resetable as possible. When the player goes through the outro room or
+# dies, the game should reset the world behind them. That will be a lot easier to do if the contents of
+# a room don't actually change all that much. IE: if i just drop a wrench in the hangar then I'll have
+# to recreate it every reset, whereas if I just make a wrench spawner and track the player's inventory
+# and progress on their character, then I can just reset their character and not have to screw around in
+# the hangar.
+#Today I think I want to mess around with custom exits. I want: keycard doors, keypad doors,
+# remotely operated doors, and maybe a few other things, I dunno. Just screwin'.
+#
+@tel #2
+#---1---
+# Intro
+#-------
+#
+#First, make the room.
+#
+@dig Intro;niktest#01 : world.niktestworlddefs.NIntroRoom
+#
+#We'll make the exit to the room seperately so we can describe it.
+#
+@open niktestgame;nikgame;nik = niktest#01
+#
+@desc niktestgame = 
+This is a little test game I made to get familiar with Evennia. I'm using the
+tutorial world as a bit of a construction guide, so that's why they'll seem similar.
+#
+#Now, we enter the room.
+#
+niktestgame
+#
+@desc
+|gNIK'S TEST GAME|n
+
+Welcome to my little test game. This was built as an exercise to become
+familiar with |wEvennia|n and it's basic building features. It will share
+a lot of similarity with the tutorial world, since I used it as a bit of
+a construction guide. Baby steps.
+
+Now, to get into the mood of the game...
+
+|g1700 HRS STU, KMV FCO JAMESON|n
+You are the pilot of the |wKMV FCO Jameson|n, an ultralight carrier that's
+just about falling apart. About three hours ago, |rpirates|n boarded the
+vessel while your sensors were down, disabled some critical systems, and
+comandeered the ship! However, some of the pirates just |yleft the vessel|n
+on one of our shuttles, taking half the crew, and leaving only two of
+their number behind to guard the remaining crew. You were restrained in
+the |whangar bay|n, but have managed to break free of your bonds. Now, you
+can walk around the ship... you recall that |wDr. Simmons|n was treating
+one of our wounded security officers in |wMed-Sci|n. Perhaps you can work
+out an |yescape plan|n together?
+
+|gWrite |ybegin|g to start the story, or |yback|n to go back to Limbo.|n
+#
+#Now, we'll make the "back" room, which is just a room that strips away the things the intro room gave the user
+# and sends the user on his way.
+#
+@dig/teleport back : world.niktestworlddefs.NOutroRoom = back;exit;leave;limbo
+#
+@set here/autoexit = #2
+#
+@tel niktest#01
+#---2---
+#Hangar
+#-------
+#
+@dig/teleport Hangar Bay;niktest#02 : world.niktestworlddefs.NikRoom = begin;start;play;game
+#
+@desc
+This is the hangar bay of the |wKMV FCO Jameson|n. There are a few
+|wcrates|n around, as well as a few |wfuel tanks|n for shuttles. The
+central |wplatform|n where the shuttle normally sits is empty, still
+slightly warm from the recent departure of the pirates.
+
+There is an |wairlock|n and a |wpassage to the central hall|n in this room.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+From here, you can see the hangar bay, which could ideally hold one
+shuttle and a large amount of cargo. Unfortunately, the shuttle is gone,
+and you don't have much cargo either.
+#
+@detail crates;crate;box;boxes;containers;storage = 
+A few storage containers are secured to the webbing on the ship's deck
+here. You think these containers have been here since you were assigned
+to the ship... Looking at their manifests confirms this, as it seems
+they were loaded decades ago, and their destinations no longer exist.
+
+The contents are equally as boring: 2.5cm nuts, 2.5cm bolts, copper wire,
+200 mAh microcapacitors, etc... At least nothing important got lost in this
+little accident of bureaucracy.
+#
+@detail fuel tanks;fuel;tanks;fuel cans;cans;cylinders;fuel cylinders =
+Sitting unsecured beside the shuttle platform are a few fuel cylinders.
+They've all been drained out into the shuttle, which departed with the
+pirates not long ago. Now they're just sitting beside the platform.
+
+You consider securing them back in their proper place on the far side of
+the hangar, but they're too heavy to lift alone, and you have more
+important things to do.
+#
+@detail platform;central platform;landing platform;landing;shuttle platform =
+The hangar's central platform has enough space for the shuttle to land, as
+well as a few pieces of equipment integrated to the floor for various 
+maintenance and refitting tasks. The panels on the floor are still warm
+from the recent departure.
+#
+#The wrench is an item with important uses. It can be used as a (rubbish) melee weapon, and to complete
+# some objectives. These uses are defined in the Typeclass. We just need to drop it into the world here.
+#But actually, I might need to create some kind of "spawner" or object which creates the wrench when you
+# try to get one, because otherwise I'll need to find a way to respawn it here every time the player
+# dies or the world needs to be reset.
+#
+#####PLACEHOLDER#####
+#Make an object like a toolbox or something that will hand out wrenches as necessary so we don't need to
+# respawn wrenches in this room every time the player dies/resets the world.
+@create/drop wrench : niktestworldefs.Wrench
+#
+@desc wrench = 
+A trusty streel wrench. One of the most important tools on a spacecraft.
+#
+#---3---
+#Airlock
+#-------
+#####PLACEHOLDER#####
+#We'll have to make the exit separately later when we have an airlock door object
+@dig Airlock;niktest#03 : world.niktestworlddefs.NikRoom = airlock;airlock door;interior airlock;interior door,hangar;hangar bay;bay;inside;back;interior airlock;interior door
+#####PLACEHOLDER#####
+#Make the description here change dynamically if the door is locked or unlocked
+@desc airlock door =
+The sturdy steel door of the airlock. It's locked with an electronic
+keycard reader. It's big enough to fit the shuttle through when opened.
+
+It leads into the airlock, where there is another exterior door that
+is the last partition between you and the cold vacuum of space.
+#####PLACEHOLDER#####
+#Replace this with a more detailed door object like the one in the dark cell
+@lock airlock door = traverse:tag(nik_has_eng_card)
+#
+@set airlock door/err_traverse =
+The airlock door is locked with a keycard scanner. You'll need the right
+keycard to open it. You think an engineer's keycard will do it.
+#
+@tel niktest#03
+#
+@desc
+This is the airlock of the |wKMV FCO Jameson|n. It's large enough to fit
+the shuttle through. There is a |wmaintenance panel|n, which contains some
+of the airlock's mechanisms and parts. There are two doors to the airlock,
+an |wninner door|n and an |wouter door|n. There is a |wspacesuit closet|n in the
+corner.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+From here inside the airlock, you can really see its age. There are scrape
+marks on the floor of the airlock from the years of moving crates on and
+off. The hazard stripes are almost gone. Rust is forming along the edges
+of various panels. Your confidence in the airlock is somewhat dubious, but
+you trust it enough to use it.
+#
+@detail maintenance panel;panel;maintenance;maint;engineer panel =
+The airlock has a primary maintenance panel, from which you can see the
+air tank, pumps, electronics, and other critical systems. You can open it
+without any tools, just by turning the latch. Inside, you examine the
+system and find it surprisingly well managed and maintained. The engineer
+must have done a respec recently.
+#####PLACEHOLDER#####
+#Need a spacesuit closet object to spawn spacesuits
+@detail spacesuit closet;suits;spacesuits;closet =
+The spacesuit closet holds spacesuits for the entire crew, as well as
+other EVA gear. Looking inside, you see a few spacesuits, including yours,
+are still here. Lucky.
+#
+@desc interior door =
+The sturdy steel door of the airlock. It's locked with an electronic
+keycard reader. It's big enough to fit the shuttle through when opened.
+
+It leads back into the hangar bay, where you can access the rest of the
+ship.
+#
+@create/drop spacesuit : world.niktestworlddefs.Spacesuit
+#
+@desc spacesuit =
+A suitport entry spacesuit. It allows you to get inside just by stepping
+through the back and reaching your limbs out into the holes. Very simple
+and reliable. It has a variety of tethers and gecko grips to keep you
+safely affixed to the ship during an EVA. Looking at the electronics,
+filters and seals, everything seems to be ready for an EVA.
+#
+@set spacesuit/hazardprot = ["vacuum"]
+#
+@set spacesuit/armour = 1
+#
+#---4---
+#Exterior
+#-------
+#The exterior of the ship has an objective which needs to be completed for the game to continue. Engine
+# repair. However, before repair can occur, the engines need to be off, so this is technically objective
+# number two.
+#####PLACEHOLDER#####
+#Make a door which makes the airlock become vacuum when opened
+@dig Ship Exterior;niktest#04 : world.niktestworlddefs.NikRoom = exterior airlock;exterior door;exterior;out;outside;space,airlock;airlock door;exterior airlock;exterior door;inside;in;back
+#
+@desc exterior door =
+The sturdy steel door of the airlock. It's locked with an electronic
+keycard reader. It's big enough to fit the shuttle through when opened.
+
+This leads into space. There's no viewport, only a large stenciled word
+across the center: |rEXTERIOR|n.
+#
+@tel niktest#04
+#
+@desc
+This is the exterior surface of the |wKMV FCO Jameson|n. From here you can see
+the entire |wcosmos|n wheeling overhead. The bulkheads of the ship are
+illuminated by a |wnearby star|n. From here you can see the |wcomm array|n, |wscopes|n
+and the |wengines|n.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+From the outside, the rough, boxy shape of the ship is obvious. Various
+service markings dot her hull and the whole thing seems ready to just
+retire at any time. But she's still working for now.
+#####PLACEHOLDER#####
+#Make vacuum actually kill you if you don't have a spacesuit on
+@set niktest#04/hazards = ["vacuum"]
+#
+@detail cosmos;stars;space;universe;beauty =
+The beautiful starscape fills your view. The beauty of the universe pours
+out as photons that focus through the lens of your eye and onto your
+retina, transmitted as signals to your brain. The profundity of this image
+never disappears for you, no matter how many EVAs you do, or shuttles you
+land. The entire universe is on display in a grand ballet, moons circling
+planets, planets circling stars, stars circling galaxies, galaxies
+colliding. A star flashing in the night sky may be a supergiant burning
+its planets to plasma, just to be a dot in your view, telling you to never
+give up, and never surrender.
+
+You breathe out.
+#
+@detail nearby star;star;sun;Mal =
+The ship is currently in a solar, equatorial orbit around the star HIP
+18658, also known as 'Mal'. This is the sun that's shone on your home for
+your entire life. It's an F5V star, 1.43 solar masses, so just a little
+more massive than the sun. It illuminates the surface of the ship.
+#
+@detail comm array;comms;comm;antenna =
+The comms array is retracted into its protective shield, as it's not in
+use right now. It's kept in a fairing to keep it safe from any micrometeor
+or debris impacts.
+#
+@detail scopes;telescopes;sensors = 
+The ship's sensor array, or scopes, are dotted around the vessel at
+regular intervals and angles in order to give a full 360 degree view of
+the space around the ship. An individual sensor may only be the size of
+your fist. They are black, shiny semispheres, which reflect the stars
+above.
+#####PLACEHOLDER#####
+#Make engines an actual thing with interactions
+@create/drop engines
+#
+@lock engines = get:false()
+#
+@desc in = 
+The sturdy steel door of the airlock. It's locked with an electronic
+keycard reader. It's big enough to fit the shuttle through when opened.
+
+This airlock is the only way back inside the ship.
+#
+#---5---
+#Hallway
+#-------
+@tel niktest#02
+#
+@dig Central Hallway;niktest#05 : world.niktestworlddefs.NikRoom = passage;central;central hallway;hallway;hall,hangar;bay;hangar bay
+#
+@desc passage =
+This passage leads into the central hall of the ship. From there, you can 
+access almost anywhere else on the ship. The edges of the doorway conceal
+an emergency shutter which closes in case either side of the passage
+become depressurized. Right now, it's retracted. Through the passage you
+can see some drops of blood in the hall...
+#
+passage
+#
+@desc hangar = 
+This passage leads into the hangar bay. From there, you can access the
+airlock. Usually, there's a shuttle there, but you can see through the
+passage that the shuttle is not on the platform. The edges of the door
+conceal an emergency shutter which cloes in case either side of the
+passage become depressurized. Right now, it's retracted.
+#
+@desc
+This is the central hallway of the |wKMV FCO Jameson|n. On the wall there
+is a set of |wsigns|n which list the various doors in the hall. You can
+also see some |wblood|n on the floor and walls. There is a |wwall panel|n where
+you can see some of the life support equipment for this part of the ship.
+
+In this room, you can see doorways to |wHangar Bay|n, |wCIC|n, |wMed-Sci|n,
+|wSecurity|n, and |wEngineering|n.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+In here is the central hallway of the ship. It runs through the center and
+connects all of the major rooms of the habitat module. It's just wide
+enough for two people to stand shoulder-to-shoulder.
+#
+@detail signs;set of signs =
+The set of signs on the wall connect with lines to their respective doors.
+There are five signs:
+|yCIC|n
+|cHANGAR|n
+|gMEDSCI|n
+|rSECURITY|n
+|bENGINEERING|n
+#
+@detail blood;drips of blood =
+There is a splatter of blood about the size of your hand on the wall next
+to the door to security, and some drips of blood on the floor which lead
+to Med-Sci. The pattern of the splatter looks like ones you've seen before
+made by gunshot wounds.
+#
+@detail wall panel;wall;panel;maintenance panel;maint =
+The wall panel comes open easily and reveals the life support unit for the
+hallway. The ventilation and scrubbers are clean, and the connections are
+securely fastened. Everything seems to be in working order, which is a bit
+of a surprise, given how old the ship is. The engineer must have done a
+respec recently.
+#
+#---6---
+#CIC
+#-------
+@dig Command Information Center;CIC;niktest#06 : world.niktestworlddefs.NikRoom = CIC;command,central;central hallway;hallway;hall;back
+#####PLACEHOLDER#####
+#Make it show whether or not it's locked
+@desc command =
+This door leads into the CIC. The CIC is where the entire ship can be
+controlled from. It has a remote electronic lock, which can be opened
+from the captain's portable terminal. It's a strong steel door, resistant
+to blunt force and gunfire. You won't be opening this by force any time
+soon.
+#
+@lock command = traverse:tag(nik_CIC_unlocked)
+#
+@set command/err_traverse = 
+The door to the CIC is locked, and you don't have any way to open it.
+You'll need someone else's help to get this thing open. 
+#
+@tel niktest#06
+#
+@desc
+This is the CIC of the |wKMV FCO Jameson|n. The CIC is where the entire
+ship can be controlled from. There are various seats and |wterminals|n affixed
+to the deck, with green light illuminating the room. In the center there
+is the captain's |wcomputer table|n, which he can use to bring up anything
+that is on the ship's computer network. Along the walls you can see the
+|wsleeping racks|n for the crew. To the side there is a small annexe for
+the |wlatrine|n.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+This is the heart of the ship, where all of the decisions are made and the
+information ends up. Normally, almost the entire crew would be in here.
+Beyond simply being the command center of the ship, this is also where the
+ship's racks are. They are folded into the wall when not in use. You live,
+eat, drink, sleep and work in this room, for the most part.
+#
+@detail terminals;computers =
+The computer terminals in this room display information from the ship's
+various sensors and monitors, and grant access to remote functionality.
+Pretty much everything that doesn't need direct physical intervention is
+done from here. However, looking at the terminals right now, they all seem
+to be locked out from the captain's terminal.
+#
+@detail sleeping racks;racks;beds =
+Folded up on the wall are the crew's sleeping racks. In order to save
+space, they are all in the CIC. Space is on a premium on ships, and it
+can't easily be wasted without the designers having a stroke. Hence, this
+strange setup is how we live.
+#
+@detail latrine;toilet;bathroom;restroom =
+The latrine is off to the side behind a small door. It contains the bare
+minimal essentials needed for hygiene. There's nothing important in there
+right now.
+#####PLACEHOLDER#####
+#Make the captain's computer table an actually functional object for the objective
+@create/drop computer table
+#
+@lock computer table = get:false()
+#
+@desc computer table =
+The captain's computer table rests in the center of the CIC, projecting a
+powerful glow through the room. From here, functions of the entire ship
+can be accessed. Right now, it's displaying the ship's orbit, apogee,
+perigee, orbital velocity, and local sensor contacts.
+#####PLACEHOLDER#####
+#Make the pirate enemy actually functional
+@create/drop Pirate
+#
+@desc central =
+This door leads back to the central hallway. The electronic lock can be
+operated from this side with a button, allowing a quick and easy exit.
+This is still a strong steel door, and won't be broken down by force.
+#
+#---7---
+#Med-Sci
+#-------
+central
+#
+@dig Med-Sci;niktest#07 : world.niktestworlddefs.NikRoom = Med-Sci;medical;medsci;med;sci,central;central hallway;hallway;hall;back
+#
+@desc medical =
+This door leads to Med-Sci. Med-Sci contains the ship's infirmary, as well
+as a mini-laboratory. The door itself is made of unreinforced steel. It
+can be opened with a button beside it, and is unlocked. You can see blood
+drips on the floor leading into this door.
+#
+medical
+#
+@desc central =
+This door leads back to the central hallway. The door itself is made of
+unreinforced steel. It can be opened with a button beside it, and is
+unlocked. You can see blood drips on the floor leading into this room.
+#
+@desc
+This is the Med-Sci lab of the |wKMV FCO Jameson|n. This room contains the
+ship's |winfirmary|n and |wlaboratory|n, though the infirmary takes up almost the
+entire space. You can see a few |wmedical beds|n, one of which is |woccupied|n.
+
+You can also see |wDr. Hask|n, the ship's doctor, standing near the occupied
+medical bed.
+#
+@detail KMV FCO Jameson;KMV;FCO;Jameson;ship;the ship;vessel;craft;spacecraft =
+The KMV FCO Jameson is an ultralight carrier commissioned many, many years
+ago. It is well past its service lifetime and is essentially awaiting a
+transfer to a scrapyard orbit. But for now, it's where you're serving.
+
+This is the Med-Sci wing, where you can find the infirmary, and a small
+laboratory. You've only ever seen the infirmary get used here, and it's
+almost always been to treat EVA injuries or burns from welding tool
+accidents. The equipment here is all out of date and borderline obsolete,
+and has been installed here since the day the ship was commissioned. The
+ship's doctor, Dr. Hask, has complained about this ceaselessly since he
+was first assigned here.
+#
+@detail infirmary;sickbay =
+The infirmary takes up most of Med-Sci, containing several medical beds,
+tables, lockers and an autosurgery system. The equipment here is all
+approaching obselesence, much like the ship itself, however it has been
+kept in working condition through the cooperation of the ship's doctor and
+the ship's engineer.
+#
+@detail laboratory;lab =
+In the corner of Med-Sci is a small laboratory, containing a closet full
+of scientific instruments, vials, beakers, and chemicals for performing
+experiments. You don't think you've ever seen this thing used, but it is
+supposedly mandatory for all ships to have at least some kind of science
+lab.
+#
+@detail medical beds;beds =
+The infirmary has several medical beds, with partial autodoctor functions.
+On the right side of each bed is a cuff, which allows the bed to scan the
+user's vitals, and administer certain treatments. The readings are
+displayed on a small screen on the cuff. The beds themselves are
+adjustable, and can be placed upright or straight across. All in all,
+they're actually quite comfy.
+#####PLACEHOLDER#####
+#make the security officer's body a better object, which spawns a sec keycard
+@create/drop Sergeant Zu;dead body;body;occupied bed;officer;sergeant;zu
+#
+@lock body = get:false()
+#
+@set body/get_err_msg =
+Sergeant Zu's body is strapped into the medical bed. Besides, what would
+you do with a dead body?
+#
+@desc body = 
+Occupying one of the medical beds is the dead body of Sergeant Zu, one of
+the ship's security officers. He appears to have sustained a gunshot wound
+to his chest. His protective vest is ruined and his holster is empty.
+#####PLACEHOLDER#####
+#Make a proper keycard object
+@create/drop Security Keycard;sec keycard;seccard
+#
+@desc seccard =
+The keycard belonging to Sergeant Zu. It has a few drops of blood on it.
+#####PLACEHOLDER#####
+#Make a real NPC who will track conversation points, objectives, etc, probably based on player tags
+@create/drop Dr. Hask;doctor;ship's doctor;ships doctor;doc;hask;dr
+#
+@lock hask = get:false()
+#
+@set hask/get_err_msg = 
+You move to pick up Dr. Hask, and he protests, "What the hell? Quit it."
+With his demand, you relent, and wonder why you tried picking him up in
+the first place.
+#
+@desc hask =
+This is Dr. Hask, the ship's doctor. He stands at around 1.7 metres tall,
+with slightly tan skin, brown hair, stubble, and a pair of smartglasses.
+His jumpsuit is partially concealed by his labcoat, which has various
+medical tools and implements visible from the pockets. In his hands is his
+portable terminal, with an attached vitals scanning device. There is some
+dried blood on his labcoat.
+#---8---
+#Security
+#-------
+central
+#
+@dig Security;niktest#08 : world.niktestworlddefs.NikRoom = Security;sec,central;central hallway;hallway;hall;back
+#
+@desc security =
+This door leads to Security. Security contains a small brig, and lockers
+for the security staff. It also leads to the armoury. The door itself is
+made of unreinforced steel. It can be opened with a button beside it, and
+is unlocked.
+#
+security
+#
+@desc central =
+This door leads back to the central hallway. The door itself is made of
+unreinforced steel. It can be opened with a button beside it, and is
+unlocked.
+#
+@desc
+This is the Security section of the |wKMV FCO Jameson|n. This room
+contains various |wsecure lockers|n, |wthe brig|n, and a few |wcharging
+stations|n for some electronic security devices.
+#

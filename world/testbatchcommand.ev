@@ -1,0 +1,45 @@
+#
+@tel #2
+#
+@dig Cheeseland;cheesetest#01 = cheese portal;cheeseland;cheese,Limbo;limbo;back
+#
+@desc cheese =
+This is the portal to |yCheeseland|n, a land made entirely of edible
+cheese. The faint scent of cheddar wafts into the room from it. Through
+the portal you can see distorted hills of |ycheese|n.
+#
+cheese
+#
+@desc limbo =
+This portal leads back to Limbo, and out of |yCheeseland|n.
+#
+@desc
+Welcome to |yCheeseland|n, this world is made entirely of |ycheese|n, even
+the subatomic particles are made of cheese. It is eternal, and mostly 
+unchanging. You are stood upon a hill of |ysolid cheese|n. The sky is a
+dim yellow-white, and the air tastes of |ycheese|n. The sun bathes the
+entire world in yellow light... and if you stick your tongue out, you
+can taste the |ycheese-photons|n.
+#
+@create/drop cheese hills;ch : typeclasses.items.dispenser
+#
+@desc ch =
+The hills of |yCheeseland|n are made of solid cheese. If you wanted, you could
+just pull a chunk of cheese out from the terrain. |w(get from)|n
+#
+@set ch/get_err_msg =
+"You can't pick up the whole hill! It's way too big, and way too heavy."
+#
+@set ch/get_itm_msg =
+"You pull a chunk of %s from the hill."
+#
+@set ch/get_itm_err_msg = 
+"You can't get any more cheese from the hill."
+#
+@set ch/available_itm = ['cheese']
+#
+@set ch/prototypes = 'EDIBLE_PROTOTYPES'
+#
+@lock ch = get from:not holds(cheese)
+#
+@tel #2
