@@ -8,6 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from commands.npccommands import *
 
 
 class Character(DefaultCharacter):
@@ -30,4 +31,5 @@ class Character(DefaultCharacter):
     at_post_puppet - Echoes "AccountName has entered the game" to the room.
 
     """
-    pass
+    def at_object_creation(self):
+        self.cmdset.add(PC2NPCCmdSet, permanent=True)
