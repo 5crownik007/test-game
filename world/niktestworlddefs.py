@@ -33,42 +33,43 @@ class CmdNikDetail(default_cmds.MuxCommand):
 
 #This is a copy of the look code, except with the ability to see details spliced into the process. 
 class CmdNikLook(default_cmds.CmdLook):
-    caller = self.caller
-    args = self.args
-    if args:
-        #Creates a list of things which we could possibly be wanting to look at
-        looking_at_obj = caller.search(args,candidates=caller.location+caller.contents,use_nicks=True,quiet=True)
-        #If there's more than one thing in the list, we have a multimatch and will need to handle it
-        #If there's less than one thing in the list(zero), we have no matches. Both cases are handled below.
-        if len(looking_at_obj) != 1:
-            detail = self.obj.return_detail(args)
-            if detail:
-                self.caller.msg(detail)
-                return
+    def func(self):
+        caller = self.caller
+        args = self.args
+        if args:
+            #Creates a list of things which we could possibly be wanting to look at
+            looking_at_obj = caller.search(args,candidates=caller.location.contents+caller.contents,use_nicks=True,quiet=True)
+            #If there's more than one thing in the list, we have a multimatch and will need to handle it
+            #If there's less than one thing in the list(zero), we have no matches. Both cases are handled below.
+            if len(looking_at_obj) != 1:
+                detail = self.obj.return_detail(args)
+                if detail:
+                    self.caller.msg(detail)
+                    return
+                else:
+                    _SEARCH_AT_RESULT(looking_at_obj, caller, args)
+                    return
             else:
-                _SEARCH_AT_RESULT(looking_at_obj, caller, args)
-                return
+                #Since there's only one match, that's the thing we're looking at.
+                looking_at_obj = looking_at_obj[0]
         else:
-            #Since there's only one match, that's the thing we're looking at.
-            looking_at_obj = looking_at_obj[0]
-    else:
-        #If we just typed "look" with no arguments, it tries to look at our location. If we don't have one, it lets us know.
-        looking_at_obj = caller.location
-        if not looking_at_obj:
-            caller.msg("You have no location to look at!")
-    #If the thing we're looking at doesn't have the "return_appearance" function, then it's probably an account, so let's look at that account's character
-    if not hasattr(looking_at_obj, "return_appearance"):
-        looking_at_obj = looking_at_obj.character
-    #If we're not allowed to view the thing, then we're not gonna find it.
-    if not looking_at_obj.access(caller, "view"):
-        caller.msg("Could not find '%s'." % args)
+            #If we just typed "look" with no arguments, it tries to look at our location. If we don't have one, it lets us know.
+            looking_at_obj = caller.location
+            if not looking_at_obj:
+                caller.msg("You have no location to look at!")
+        #If the thing we're looking at doesn't have the "return_appearance" function, then it's probably an account, so let's look at that account's character
+        if not hasattr(looking_at_obj, "return_appearance"):
+            looking_at_obj = looking_at_obj.character
+        #If we're not allowed to view the thing, then we're not gonna find it.
+        if not looking_at_obj.access(caller, "view"):
+            caller.msg("Could not find '%s'." % args)
+            return
+        #Find its appearance and send it to us.
+        caller.msg(looking_at_obj.return_appearance(caller))
+        #at_desc is a function that the object runs if it gets looked at. Normally just passes, but an example where this could be used is Gorgon. If you
+        # look at it, then it will turn you to stone.
+        looking_at_obj.at_desc(looker=caller)
         return
-    #Find its appearance and send it to us.
-    caller.msg(looking_at_obj.return_appearance(caller))
-    #at_desc is a function that the object runs if it gets looked at. Normally just passes, but an example where this could be used is Gorgon. If you
-    # look at it, then it will turn you to stone.
-    looking_at_obj.at_desc(looker=caller)
-    return
 
 class NikTestCmdSet(CmdSet):
     key = "niktest_cmdset"
