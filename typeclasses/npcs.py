@@ -17,6 +17,10 @@ class NonPlayerCharacter(Character):
             {"key":"Example","desc":"This is an example topic.","goto":"topic","topic_text":"This is the text of the topic.","locktag":None}
         ]
 
+    def add_convo_topic(self,new_topic):
+        #adds a conversation topic to the list
+        self.db.convo_topics.append(new_topic)
+
     def receive_converse(self, caller):
         #Called when someone converses with us, initiates the conversation menu.
         convo_tree = {
