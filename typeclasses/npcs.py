@@ -103,7 +103,10 @@ class NonPlayerCharacter(Character):
             topic_found = False
             for topic in topic_list:
                 if topic["key"].lower() == topic_key.lower():
-                    topic[received[0]] = received[1]
+                    try:
+                        topic[received[0]] = eval(received[1])
+                    except:
+                        topic[received[0]] = received[1]
                     topic_found = True
             if not topic_found:
                 caller.msg("Topic with key %s not found for %s"%(topic_key,self.key))
@@ -195,11 +198,10 @@ class NonPlayerCharacter(Character):
     def replychoice(self, caller, raw_string, **kwargs):
         #This function very simply facilitates branching conversation construction by either sending the
         # menu back to the "start" node, or re-running the "topic" node with new kwargs
-        #
+        caller.tags.clear(category="%s_convo"%self.key)
         if raw_string.lower() == 'back' or raw_string.lower() == 'greeting':
             return "start", {"greeted":True}
         else:
-            caller.tags.clear(category="%s_convo"%self.key)
             return None, kwargs
 
     def topicconvo(self, caller, raw_string, **kwargs):
