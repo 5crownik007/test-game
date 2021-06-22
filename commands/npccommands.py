@@ -1,6 +1,7 @@
 from commands.command import Command
 from evennia import CmdSet, utils
 from evennia import syscmdkeys, default_cmds
+from evennia.utils import dedent
 from evennia.commands.default.building import ObjManipCommand
 from django.conf import settings
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
@@ -67,6 +68,26 @@ class CmdConvoTopic(default_cmds.MuxCommand):
         if not self.args or not self.rhs:
             self.caller.msg("|rUsage: convotopic <obj> = <dict>|n")
             return
+        try:
+            received = eval(self.rhs)
+        except:
+            received = self.rhs
+        if not isinstance(received, dict):
+            self.caller.msg("|rInput topic was not a dictionary.|n")
+            return
+        elif "key" or "desc" or "goto" or "topic_text" or "locktag" not in received:
+            self.caller.msg(dedent(
+                """
+                |rInput topic dictionary was missing one or more keywords.|n
+                |wRequired Keywords:|n
+                |wkey(str):|n evmenu key for the option in the startconvo node
+                |wdesc(str):|n evmenu description shown with the option in startconvo node
+                |wgoto(str or callable or tuple(callable, kwargs)):|n node or goto-callable for the option in the startconvo node
+                |wtopic_text(str):|n text shown in the topicconvo node. irrelevant if not going to that node
+                |wlocktag(str or None):|n key of the tag required for this topic to be displayed. If set to None, no tag is required.
+                """
+            ))
+            return
         else:
             target = self.caller.search(self.lhs,candidates=self.caller.location.contents,use_nicks=True,quiet=True)
             if len(target) != 1:
@@ -78,11 +99,8 @@ class CmdConvoTopic(default_cmds.MuxCommand):
         if not hasattr(target, "add_convo_topic"):
             self.caller.msg("You cannot set conversation topics on %s." %target.key)
             return
-        elif not self.rhs["key"]:
-            self.caller.msg("Missing key from dictionary")
-            return
         else:
-            target.add_convo_topic(eval(self.rhs))
+            target.add_convo_topic(received)
             self.caller.msg("Topic added to %s: %s" %(self.lhs, self.rhs["key"]))
         
 class PC2NPCCmdSet(CmdSet):
