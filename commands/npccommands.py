@@ -13,9 +13,9 @@ class CmdConverse(Command):
             self.caller.msg("Converse with whom?")
             return
         else:
-            target = self.caller.search(self.args,candidates=self.caller.location.contents+self.caller.contents,use_nicks=True,quiet=True)
+            target = self.caller.search(self.args.strip(),candidates=self.caller.location.contents+self.caller.contents,use_nicks=True,quiet=True)
             if len(target) != 1:
-                _SEARCH_AT_RESULT(target,self.caller,self.args)
+                _SEARCH_AT_RESULT(target,self.caller,self.args.strip())
                 return
             else:
                 target = target[0]

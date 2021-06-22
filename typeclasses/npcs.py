@@ -123,7 +123,7 @@ class NonPlayerCharacter(Character):
             "topic":self.topicconvo,
             "end":self.endconvo
             }
-        evmenu.EvMenu(caller, convo_tree,startnode_input=('',{"greeted":False}))
+        evmenu.EvMenu(caller, convo_tree,startnode_input=('',{"greeted":False}),auto_quit=False)
 
     def generate_options(self, caller, mode=0):
         #when mode = 0
